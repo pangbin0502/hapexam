@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="hbi.core.order.mapper.OmOrderLinesMapper">
+    <resultMap id="BaseResultMap" type="hbi.core.order.dto.OmOrderLines">
+        <result column="LINE_ID" property="lineId" jdbcType="DECIMAL" />
+        <result column="HEADER_ID" property="headerId" jdbcType="DECIMAL" />
+        <result column="LINE_NUMBER" property="lineNumber" jdbcType="DECIMAL" />
+        <result column="INVENTORY_ITEM_ID" property="inventoryItemId" jdbcType="DECIMAL" />
+        <result column="ORDERD_QUANTITY" property="orderdQuantity" jdbcType="DECIMAL" />
+        <result column="ORDER_QUANTITY_UOM" property="orderQuantityUom" jdbcType="VARCHAR" />
+        <result column="UNIT_SELLING_PRICE" property="unitSellingPrice" jdbcType="DECIMAL" />
+        <result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
+        <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
+        <result column="ADDITION1" property="addition1" jdbcType="VARCHAR" />
+        <result column="ADDITION2" property="addition2" jdbcType="VARCHAR" />
+        <result column="ADDITION3" property="addition3" jdbcType="VARCHAR" />
+        <result column="ADDITION4" property="addition4" jdbcType="VARCHAR" />
+        <result column="ADDITION5" property="addition5" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <select id="selectByHeaderId" resultMap="BaseResultMap">
+       SELECT a.INVENTORY_ITEM_ID,a.ORDERD_QUANTITY,a.ORDER_QUANTITY_UOM,a.UNIT_SELLING_PRICE,a.DESCRIPTION
+       from hap_om_order_lines_b a
+        WHERE a.header_id = #{headerId,jdbcType=DECIMAL}
+    </select>
+
+    <delete id="deleteByHeaderId" parameterType="hbi.core.order.dto.OmOrderLines">
+        delete
+        from hap_om_order_lines_b
+        where header_id = #{headerId,jdbcType=DECIMAL}
+    </delete>
+
+    <select id="selectSumPrice" resultMap="BaseResultMap" parameterType="hbi.core.order.dto.OmOrderHeaders">
+        SELECT
+        hoor.*,hiii.ITEM_DESCRIPTION AS ITEM_DESCRIPTION,
+        (hoor.UNIT_SELLING_PRICE * hoor.ORDERD_QUANTITY) AS SUM
+        FROM
+        hap_om_order_lines_b hoor,
+        hap_inv_inventory_items_b hiii
+        <where>
+            hoor.INVENTORY_ITEM_ID=hiii.INVENTORY_ITEM_ID
+            <if test="headerId !=null">
+                and hoor.HEADER_ID =#{headerId,jdbcType=DECIMAL}
+            </if>
+        </where>
+    </select>
+</mapper>
